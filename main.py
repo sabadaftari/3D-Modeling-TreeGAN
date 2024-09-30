@@ -28,7 +28,7 @@ if __name__ == '__main__':
     batch_size = 10
 
     # Load the data from ModelNet
-    dataloader = Point_DataLoader(batch_size)
+    train_dataloader, valid_dataloader = Point_DataLoader(batch_size)
 
     epochs = 20
     with Live("dvclive") as live:
@@ -42,18 +42,17 @@ if __name__ == '__main__':
             # devices=1, 
             accelerator="cpu",
             max_epochs=epochs,
-            # default_root_dir=params["BASE_URL"],
             logger=dvclive_logger
         )
 
         """                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
         TRAIN & VALIDATE
         """
-        # print(f">>>>>>>>>> Number of train batches:  {len(loader.train)}")
-        # print(f">>>>>>>>>> Number of validation batches:  {len(loader.validate)}")
+        print(f">>>>>>>>>> Number of train batches:  {len(train_dataloader)}")
+        print(f">>>>>>>>>> Number of validation batches:  {len(valid_dataloader)}")
         
         # Calling the train and validate
-        trainer.fit(model, dataloader)
+        trainer.fit(model, train_dataloader, valid_dataloader)
         # trainer.fit(model, loader.entire_train) #once your model is ready + hparams are tuned, we train on the total dataset
         """
         TEST
