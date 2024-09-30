@@ -12,6 +12,7 @@ class GAN(pl.LightningModule):
     self.discriminator = discriminator
     # Disable automatic optimization
     self.automatic_optimization = False
+    # self.save_hyperparameters(ignore=['generator','discriminator'])
 
   def forward(self, z):
     """
@@ -35,11 +36,6 @@ class GAN(pl.LightningModule):
     D_fake = self.discriminator(fake_point_clouds)
     g_loss = -D_fake.mean()
 
-    # Update Generator
-    self.opt_G.zero_grad()
-    g_loss.backward()
-    self.opt_G.step()
-
     return g_loss
 
   def discriminator_step(self, x, z):
@@ -61,31 +57,34 @@ class GAN(pl.LightningModule):
     gp_loss = gradient_penalty(self.discriminator, x, fake_point_clouds)
     d_loss = -D_real.mean() + D_fake.mean() + gp_loss
 
-    # Update Discriminator
-    self.opt_D.zero_grad()
-    d_loss.backward()
-    self.opt_D.step()
-
     return d_loss
 
   def training_step(self, batch, batch_idx):
     real_point_clouds = batch.pos
     z = torch.randn(real_point_clouds.size(0), 1, 96) # Random noise for generator
-
+    # Get the optimizers
+    opt_G, opt_D = self.optimizers()
     # train discriminator
     
-    loss = self.discriminator_step(real_point_clouds,z)
+    d_loss = self.discriminator_step(real_point_clouds,z)
+    # Update Discriminator
+    opt_D.zero_grad()
+    d_loss.backward()
+    opt_D.step()
 
     # train generator
     
-    loss = self.generator_step(z)
+    g_loss = self.generator_step(z)
+    # Update Generator
+    opt_G.zero_grad()
+    g_loss.backward()
+    opt_G.step()
 
-    return loss
 
   def configure_optimizers(self):
     opt_G = torch.optim.Adam(self.generator.parameters(), lr=0.0001)
     opt_D = torch.optim.Adam(self.discriminator.parameters(), lr=0.0001)
-    return [opt_G, opt_D], []
+    return [opt_G, opt_D]
 
 #   def training_epoch_end(self, training_step_outputs):
 #     epoch_test_images = self(self.test_noises)

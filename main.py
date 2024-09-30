@@ -40,7 +40,7 @@ if __name__ == '__main__':
         trainer = pl.Trainer(
             check_val_every_n_epoch=1,
             # devices=1, 
-            # accelerator="gpu",
+            accelerator="cpu",
             max_epochs=epochs,
             # default_root_dir=params["BASE_URL"],
             logger=dvclive_logger
