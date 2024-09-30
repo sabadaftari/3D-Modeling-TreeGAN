@@ -61,7 +61,8 @@ class GAN(pl.LightningModule):
 
   def training_step(self, batch, batch_idx):
     real_point_clouds = batch.pos
-    z = torch.randn(real_point_clouds.size(0), 1, 96) # Random noise for generator
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    z = torch.randn(real_point_clouds.size(0), 1, 96).to(device) # Random noise for generator
     # Get the optimizers
     opt_G, opt_D = self.optimizers()
     # train discriminator
