@@ -40,7 +40,7 @@ if __name__ == '__main__':
         trainer = pl.Trainer(
             check_val_every_n_epoch=1,
             # devices=1, 
-            accelerator="cpu",
+            accelerator="gpu",
             max_epochs=epochs,
             logger=dvclive_logger
         )
@@ -53,14 +53,3 @@ if __name__ == '__main__':
         
         # Calling the train and validate
         trainer.fit(model, train_dataloader, valid_dataloader)
-        # trainer.fit(model, loader.entire_train) #once your model is ready + hparams are tuned, we train on the total dataset
-        """
-        TEST
-        """
-        # print(f">>>>>>>>>> Number of test batches:  {len(loader.test)}")
-        # # Calling the test with checkpoint from an already trained model
-        # y_hat_all_val = trainer.test(model, 
-        #                             dataloaders=loader.test, 
-        #                             ckpt_path=params["CHECKPOINT_URL"]) # using trainer.test will perform one evaluation epoch over the dataloader given.
-
-    

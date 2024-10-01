@@ -3,9 +3,6 @@ import torch.nn as nn
 from torch_geometric.datasets import ModelNet
 from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as DL
-from torch.utils.data import TensorDataset
-import torch.nn.functional as F
-import random
 import tracemalloc
 
 
@@ -348,11 +345,15 @@ if __name__ == '__main__':
     # Initialize the Generator and Discriminator
     generator = TreeGANGenerator(features, degrees, batch_size).to(device)
     discriminator = TreeGANDiscriminator(features[-1]).to(device)
-    
+    from src.loaders import Point_DataLoader
     # Load the data from ModelNet
-    dataloader = get_dataloader(batch_size)
+    dataloader, valid = Point_DataLoader(batch_size)
     
     # Train TreeGAN
-    train_treegan(generator, discriminator, dataloader, epochs=20, device=device)
+    train_treegan(generator, discriminator, dataloader, epochs=3, device=device)
     
     # After training
+    from src.workflow.validate import evaluate_generator
+    for valbatch in valid:
+        evaluate_generator(generator, valbatch, device, num_samples=5)
+
