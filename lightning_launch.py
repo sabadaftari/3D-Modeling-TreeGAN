@@ -28,7 +28,7 @@ if __name__ == '__main__':
     batch_size = 10
 
     # Load the data from ModelNet
-    dataloader = Point_DataLoader(batch_size)
+    train_dataloader, valid_dataloader = Point_DataLoader(batch_size)
 
     epochs = 20
     with Live("dvclive") as live:
@@ -40,28 +40,16 @@ if __name__ == '__main__':
         trainer = pl.Trainer(
             check_val_every_n_epoch=1,
             # devices=1, 
-            accelerator="cpu",
+            accelerator="gpu",
             max_epochs=epochs,
-            # default_root_dir=params["BASE_URL"],
             logger=dvclive_logger
         )
 
         """                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
         TRAIN & VALIDATE
         """
-        # print(f">>>>>>>>>> Number of train batches:  {len(loader.train)}")
-        # print(f">>>>>>>>>> Number of validation batches:  {len(loader.validate)}")
+        print(f">>>>>>>>>> Number of train batches:  {len(train_dataloader)}")
+        print(f">>>>>>>>>> Number of validation batches:  {len(valid_dataloader)}")
         
         # Calling the train and validate
-        trainer.fit(model, dataloader)
-        # trainer.fit(model, loader.entire_train) #once your model is ready + hparams are tuned, we train on the total dataset
-        """
-        TEST
-        """
-        # print(f">>>>>>>>>> Number of test batches:  {len(loader.test)}")
-        # # Calling the test with checkpoint from an already trained model
-        # y_hat_all_val = trainer.test(model, 
-        #                             dataloaders=loader.test, 
-        #                             ckpt_path=params["CHECKPOINT_URL"]) # using trainer.test will perform one evaluation epoch over the dataloader given.
-
-    
+        trainer.fit(model, train_dataloader, valid_dataloader)
