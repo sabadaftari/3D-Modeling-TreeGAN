@@ -1,13 +1,14 @@
 import torch
 import tracemalloc
+import argparse
+from src.loaders import Point_DataLoader
 from src.models import (TreeGANGenerator,
                         TreeGANDiscriminator)
-from src.workflow import train
-from src.loaders import Point_DataLoader
-from src.workflow.validate import evaluate_generator
+from src.workflow import (train, evaluate_generator)
+from parsing import add_parse_args
 
 # Main Function to Run the Model
-if __name__ == '__main__':
+def Main():
     # Store 25 frames
     tracemalloc.start(25)
 
@@ -20,22 +21,27 @@ if __name__ == '__main__':
     torch.set_float32_matmul_precision("medium")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    # Define the architecture of TreeGAN
-    features = [96, 64, 64, 64, 3]  # Feature dimensions
-    degrees = [2, 2, 2, 64]  # Tree node degrees
-    batch_size = 10
+    """
+    READ ARGUMENTS
+    """
+    # First let's read args for our experiment
+    parser = argparse.ArgumentParser()
+    parser = add_parse_args(parser)
+    args = parser.parse_args()
     
     # Initialize the Generator and Discriminator
-    generator = TreeGANGenerator(features, degrees, batch_size).to(device)
-    discriminator = TreeGANDiscriminator(features[-1]).to(device)
+    generator = TreeGANGenerator(args.features, args.degrees, args.batch_size).to(device)
+    discriminator = TreeGANDiscriminator(args.features[-1]).to(device)
     
     # Load the data from ModelNet
-    dataloader, valid = Point_DataLoader(batch_size)
+    dataloader, valid = Point_DataLoader(args.batch_size)
     
     # Train TreeGAN
-    train(generator, discriminator, dataloader, epochs=3, device=device)
+    train(generator, discriminator, dataloader, epochs=args.num_epochs, device=device)
     
     # Evaluate TreeGAN
     for valbatch in valid:
         evaluate_generator(generator, valbatch, device, num_samples=5)
 
+if __name__ == '__main__':
+    Main()
