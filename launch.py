@@ -47,11 +47,15 @@ def main():
           lr_g= args.g_lr, 
           lr_d = args.d_lr)
     
+    loss = {'G_loss': []}
     # Evaluate TreeGAN
     for valbatch in valid:
         visualize_point_cloud(valbatch.pos.to(device))
-        generated_point_clouds = evaluate_generator(generator, valbatch, device, num_samples=5)
+        generated_point_clouds, loss = evaluate_generator(discriminator, generator, valbatch, device)
         visualize_batch_output_single_plot(generated_point_clouds)
+        loss['G_loss'].append(loss.item())
+    print(f'G_loss: {sum(loss["G_loss"])/len(loss["G_loss"])}')
+
 
 if __name__ == '__main__':
     main()

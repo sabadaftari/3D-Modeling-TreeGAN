@@ -2,9 +2,9 @@ import torch
 from src.utils import (ChamferDistance,
                         compute_diversity,
                         visualize_combined_point_clouds)
-                   
+from src.models import gradient_penalty                   
 
-def evaluate_generator(generator, batch, device, num_samples=5):
+def evaluate_generator(discriminator,generator, batch, device):
     """
     Evaluates the generator using the following metrics:
     1. Visual Inspection (using matplotlib)
@@ -36,5 +36,7 @@ def evaluate_generator(generator, batch, device, num_samples=5):
         # chamfer_loss = ChamferDistance(real_point_clouds, generated_point_clouds)
         # chamfer_distances.append(chamfer_loss.item())
 
+        D_fake = discriminator(generated_point_clouds)
+        g_loss = -D_fake.mean()
 
-    return generated_point_clouds
+    return generated_point_clouds, g_loss
