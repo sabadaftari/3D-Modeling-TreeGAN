@@ -5,33 +5,6 @@ from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as DL
 import tracemalloc
 
-
-# from pytorch3d.loss import chamfer_distance
-
-def ChamferDistance(x, y):
-    """
-    Compute Chamfer Distance between two point clouds x and y.
-    
-    Args:
-        x (torch.Tensor): Real point cloud of shape [batch_size, num_points, 3].
-        y (torch.Tensor): Generated point cloud of shape [batch_size, num_points, 3].
-    
-    Returns:
-        torch.Tensor: Chamfer Distance between point clouds x and y.
-    """
-    x_expand = x.unsqueeze(2)  # [batch_size, num_points_x, 1, 3]
-    y_expand = y.unsqueeze(1)  # [batch_size, 1, num_points_y, 3]
-    
-    dist = torch.sum((x_expand - y_expand) ** 2, dim=-1)  # [batch_size, num_points_x, num_points_y]
-    
-    # Compute the minimum distance from each point in x to the points in y
-    dist_x_to_y = torch.min(dist, dim=2)[0]  # [batch_size, num_points_x]
-    
-    # Compute the minimum distance from each point in y to the points in x
-    dist_y_to_x = torch.min(dist, dim=1)[0]  # [batch_size, num_points_y]
-    
-    return torch.mean(dist_x_to_y) + torch.mean(dist_y_to_x)
-
 # Define the Generator
 class TreeGANGenerator(nn.Module):
     def __init__(self, features, degrees, batch_size):
@@ -167,22 +140,6 @@ def get_dataloader(batch_size, dataset_path="src/data/ModelNet10"):
     dataset = ModelNet(root=dataset_path, name='10', train=True)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=6)
     return dataloader
-
-# Chamfer Distance Calculation
-def chamfer_distance(real_pc, generated_pc):
-    """
-    Computes the Chamfer Distance between the real and generated point clouds.
-    
-    Args:
-        real_pc (torch.Tensor): The real point cloud.
-        generated_pc (torch.Tensor): The generated point cloud.
-        
-    Returns:
-        distance (torch.Tensor): The Chamfer distance between the real and generated point clouds.
-    """
-    chamfer_dist = ChamferDistance()
-    dist1, dist2 = chamfer_dist(real_pc, generated_pc)
-    return torch.mean(dist1) + torch.mean(dist2)
 
 # Training TreeGAN Model
 def train_treegan(generator, discriminator, dataloader, epochs, device):
