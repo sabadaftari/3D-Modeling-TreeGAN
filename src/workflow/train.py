@@ -55,5 +55,5 @@ def train(generator, discriminator, dataloader, epochs, device):
             # Logging Losses
             loss_log['G_loss'].append(g_loss.item())
             loss_log['D_loss'].append(d_loss.item())
-
-        return loss_log['G_loss'], loss_log['D_loss']  
+            
+        print(f'Epoch [{epoch}/{epochs}] G_loss: {sum(loss_log["G_loss"])/len(loss_log["G_loss"])} | D_loss: {sum(loss_log["D_loss"])/len(loss_log["D_loss"])}')
