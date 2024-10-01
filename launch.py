@@ -8,7 +8,7 @@ from src.workflow import (train, evaluate_generator)
 from parsing import add_parse_args
 
 # Main Function to Run the Model
-def Main():
+def main():
     # Store 25 frames
     tracemalloc.start(25)
 
@@ -50,4 +50,4 @@ def Main():
         evaluate_generator(generator, valbatch, device, num_samples=5)
 
 if __name__ == '__main__':
-    Main()
+    main()

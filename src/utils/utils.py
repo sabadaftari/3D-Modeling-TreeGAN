@@ -1,47 +1,9 @@
 import random
 import torch
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
-def ChamferDistance(x, y):
-    """
-    Compute Chamfer Distance between two point clouds x and y.
-    
-    Args:
-        x (torch.Tensor): Real point cloud of shape [batch_size, num_points, 3].
-        y (torch.Tensor): Generated point cloud of shape [batch_size, num_points, 3].
-    
-    Returns:
-        torch.Tensor: Chamfer Distance between point clouds x and y.
-    """
-    # Ensure proper shapes
-    if x.dim() == 2:
-        x = x.unsqueeze(0)  # Add batch dimension
-    if y.dim() == 2:
-        y = y.unsqueeze(0)
-
-    # Compute squared norms of x and y
-    x_norm = torch.sum(x ** 2, dim=-1, keepdim=True)  # [batch_size, num_points_x, 1]
-    y_norm = torch.sum(y ** 2, dim=-1, keepdim=True)  # [batch_size, num_points_y, 1]
-
-    # Compute the pairwise dot products between points in x and points in y
-    dot_product = torch.bmm(x, y.transpose(1, 2))  # [batch_size, num_points_x, num_points_y]
-
-    # Compute pairwise distances: ||x||^2 + ||y||^2 - 2 * dot(x, y)
-    dist = x_norm + y_norm.transpose(1, 2) - 2 * dot_product  # [batch_size, num_points_x, num_points_y]
-
-    # Ensure non-negative distances (for numerical stability)
-    dist = torch.clamp(dist, min=0.0)
-
-    # Compute the minimum distance from each point in x to the points in y
-    dist_x_to_y = torch.min(dist, dim=2)[0]  # [batch_size, num_points_x]
-
-    # Compute the minimum distance from each point in y to the points in x
-    dist_y_to_x = torch.min(dist, dim=1)[0]  # [batch_size, num_points_y]
-
-    # Return the mean of the distances
-    return torch.mean(dist_x_to_y) + torch.mean(dist_y_to_x)
-
+# from chamferdist import ChamferDistance
+# import pytorch3d
 def compute_diversity(generated_point_clouds, num_samples=10):
     """
     Computes the diversity of generated samples by calculating Chamfer Distance 
@@ -89,6 +51,34 @@ def visualize_combined_point_clouds(point_clouds):
     ax.set_zlabel("Z")
     ax.legend()
     plt.show()
+
+def ChamferDistance(x, y):
+    """
+    Compute Chamfer Distance between two point clouds x and y (no batch size).
+    
+    Args:
+        x (torch.Tensor): Real point cloud of shape [num_points_x, 3].
+        y (torch.Tensor): Generated point cloud of shape [num_points_y, 3].
+    
+    Returns:
+        torch.Tensor: Chamfer Distance between point clouds x and y.
+    """
+    # Expand dimensions to prepare for broadcasting
+    x_expand = x.unsqueeze(1)  # [num_points_x, 1, 3]
+    y_expand = y.unsqueeze(0)  # [1, num_points_y, 3]
+    
+    # Calculate pairwise distances between points in x and points in y
+    dist = torch.sum((x_expand - y_expand) ** 2, dim=-1)  # [num_points_x, num_points_y]
+    
+    # Compute the minimum distance from each point in x to the points in y
+    dist_x_to_y = torch.min(dist, dim=1)[0]  # [num_points_x]
+    
+    # Compute the minimum distance from each point in y to the points in x
+    dist_y_to_x = torch.min(dist, dim=0)[0]  # [num_points_y]
+    
+    # Return the average Chamfer Distance
+    return torch.mean(dist_x_to_y) + torch.mean(dist_y_to_x)
+
 
 def compute_average_chamfer_loss(chamfer_distances):
     """
