@@ -96,3 +96,70 @@ def compute_average_chamfer_loss(chamfer_distances):
     avg_chamfer_loss = sum(chamfer_distances) / len(chamfer_distances)
     return avg_chamfer_loss
     
+# Visualization function for point clouds
+def visualize_point_cloud(point_cloud, title="Point Cloud"):
+    """
+    Visualize a single point cloud.
+    
+    Args:
+        point_cloud (np.array): Nx3 array of points.
+        title (str): Title of the plot.
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Extract X, Y, Z coordinates
+    x = point_cloud[:, 0]
+    y = point_cloud[:, 1]
+    z = point_cloud[:, 2]
+    
+    ax.scatter(x, y, z, c='b', marker='o')
+    
+    ax.set_title(title)
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+    plt.show()
+
+def visualize_batch_output_single_plot(generated_point_clouds):
+    """
+    Visualize the output of the generator for a given batch in a single 3D plot.
+
+    Args:
+        generator (nn.Module): The trained generator model.
+        batch (torch.Tensor): The input batch containing real point clouds.
+        device (torch.device): Device on which to perform computation (CPU/GPU).
+        num_samples (int): Number of point clouds to visualize from the batch.
+    """
+    # Initialize a 3D plot
+    fig = plt.figure(figsize=(10, 7))
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Visualize all point clouds in the batch or a single point cloud
+    if generated_point_clouds.size(0) > 1:
+        for i in range(generated_point_clouds.size(0)):
+            point_cloud = generated_point_clouds[i].cpu().numpy()
+
+            # Ensure that the point cloud has the correct shape [num_points, 3]
+            if point_cloud.ndim == 1:
+                point_cloud = point_cloud.reshape(-1, 3)
+
+            ax.scatter(point_cloud[:, 0], point_cloud[:, 1], point_cloud[:, 2], label=f"Sample {i + 1}", s=10)
+    else:
+        point_cloud = generated_point_clouds[0].cpu().numpy()
+
+        # Ensure that the point cloud has the correct shape [num_points, 3]
+        if point_cloud.ndim == 1:
+            point_cloud = point_cloud.reshape(-1, 3)
+
+        ax.scatter(point_cloud[:, 0], point_cloud[:, 1], point_cloud[:, 2], label="Generated Point Cloud", s=10)
+
+
+    ax.set_title("Generated Point Clouds from Batch")
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.legend()
+    ax.grid(True)
+
+    plt.show()

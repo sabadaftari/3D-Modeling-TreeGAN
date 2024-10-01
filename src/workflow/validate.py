@@ -23,8 +23,7 @@ def evaluate_generator(generator, batch, device, num_samples=5):
     """
     generator.eval()  # Set generator to evaluation mode
     chamfer_distances = []
-    generated_samples = []
-
+    
     with torch.no_grad():
         real_point_clouds = batch.pos.to(device)  # Get the real point clouds
         batch_size = real_point_clouds.size(0)
@@ -37,7 +36,5 @@ def evaluate_generator(generator, batch, device, num_samples=5):
         # chamfer_loss = ChamferDistance(real_point_clouds, generated_point_clouds)
         # chamfer_distances.append(chamfer_loss.item())
 
-        # Save generated samples for diversity check
-        generated_samples.append(generated_point_clouds)
 
-    return generated_point_clouds, generated_samples
+    return generated_point_clouds
