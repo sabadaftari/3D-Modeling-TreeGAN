@@ -34,10 +34,10 @@ def evaluate_generator(generator, batch, device, num_samples=5):
         generated_point_clouds = generator(z)
 
         # Compute Chamfer Distance
-        chamfer_loss = ChamferDistance(real_point_clouds, generated_point_clouds)
-        chamfer_distances.append(chamfer_loss.item())
+        # chamfer_loss = ChamferDistance(real_point_clouds, generated_point_clouds)
+        # chamfer_distances.append(chamfer_loss.item())
 
         # Save generated samples for diversity check
         generated_samples.append(generated_point_clouds)
 
-    return generated_point_clouds, chamfer_loss, generated_samples
+    return generated_point_clouds, generated_samples
