@@ -3,7 +3,7 @@ import torch
 from src.models.GradientPenalty import gradient_penalty
 
 # Training TreeGAN Model
-def train(generator, discriminator, dataloader, epochs, device):
+def train(generator, discriminator, dataloader, epochs, device, lr_g, lr_d):
     """
     Trains the TreeGAN model.
     
@@ -17,8 +17,8 @@ def train(generator, discriminator, dataloader, epochs, device):
     Returns:
         None
     """
-    opt_G = torch.optim.Adam(generator.parameters(), lr=0.0001)
-    opt_D = torch.optim.Adam(discriminator.parameters(), lr=0.0001)
+    opt_G = torch.optim.Adam(generator.parameters(), lr=lr_g)
+    opt_D = torch.optim.Adam(discriminator.parameters(), lr=lr_d)
     loss_log = {'G_loss': [], 'D_loss': []}
     
     for epoch in range(epochs):

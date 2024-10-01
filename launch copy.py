@@ -37,7 +37,13 @@ def Main():
     dataloader, valid = Point_DataLoader(args.batch_size)
     
     # Train TreeGAN
-    train(generator, discriminator, dataloader, epochs=args.num_epochs, device=device)
+    train(generator, 
+          discriminator, 
+          dataloader, 
+          epochs=args.num_epochs, 
+          device=device, 
+          lr_g= args.g_lr, 
+          lr_d = args.d_lr)
     
     # Evaluate TreeGAN
     for valbatch in valid:
