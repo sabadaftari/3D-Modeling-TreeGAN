@@ -1,8 +1,10 @@
 # TreeGAN
 Generative Modelling of 3D Point Clouds on ModelNet10.
 
-Run the command python launch.py.
-
+Run the command below:
+```bash
+python launch.py
+```
 # Further tasks: 
 1. Hyperparameter Tuning
 2. Finish adding dvc live to properly track experiments.
