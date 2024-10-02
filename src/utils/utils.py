@@ -2,32 +2,41 @@ import random
 import torch
 import matplotlib.pyplot as plt
 
-# from chamferdist import ChamferDistance
-# import pytorch3d
-def compute_diversity(generated_point_clouds, num_samples=10):
+def compute_diversity(generated_point_clouds: torch.Tensor, num_samples: int = 10) -> float:
     """
-    Computes the diversity of generated samples by calculating Chamfer Distance 
-    between pairs of generated point clouds.
+    Computes the diversity of generated samples by calculating the average Chamfer Distance 
+    between pairs of randomly selected generated point clouds.
     
     Args:
-        generated_point_clouds (torch.Tensor): Tensor of generated point clouds.
-        num_samples (int): Number of samples to use for diversity calculation.
+        generated_point_clouds (torch.Tensor): A tensor containing the generated point clouds,
+                                                 with shape [num_samples, num_points, 3].
+        num_samples (int): The number of samples to use for diversity calculation.
         
     Returns:
-        diversity_score (float): Average diversity score based on Chamfer Distance.
+        float: The average diversity score based on Chamfer Distance.
     """
     distances = []
-    sample_indices = random.sample(range(generated_point_clouds.size(0)), num_samples)
+
+    # Ensure we do not sample more indices than available
+    num_generated = generated_point_clouds.size(0)
+    if num_samples > num_generated:
+        raise ValueError(f"num_samples ({num_samples}) cannot be greater than the number of generated point clouds ({num_generated}).")
+
+    # Randomly sample indices for diversity calculation
+    sample_indices = random.sample(range(num_generated), num_samples)
     
+    # Compute Chamfer Distance for pairs of sampled point clouds
     for i in range(num_samples):
         for j in range(i + 1, num_samples):
             sample1 = generated_point_clouds[sample_indices[i]]
             sample2 = generated_point_clouds[sample_indices[j]]
-            dist = ChamferDistance(sample1.unsqueeze(0), sample2.unsqueeze(0))  # Chamfer Distance between two point clouds
+            dist = ChamferDistance(sample1.unsqueeze(0), sample2.unsqueeze(0))  # Compute Chamfer Distance
             distances.append(dist.item())
 
-    diversity_score = sum(distances) / len(distances)
+    # Calculate the average diversity score
+    diversity_score = sum(distances) / len(distances) if distances else 0.0
     return diversity_score
+
 
 def visualize_combined_point_clouds(point_clouds):
     """

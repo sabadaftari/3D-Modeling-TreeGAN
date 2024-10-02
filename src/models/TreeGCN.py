@@ -1,19 +1,29 @@
+import torch
 import torch.nn as nn
 
-# TreeGCN class to define the architecture of Tree-based Graph Neural Network
 class TreeGCN(nn.Module):
     """
     Tree-based Graph Convolutional Network (TreeGCN) layer for generating 3D point clouds.
     
     Args:
-        features (list): A list containing the number of features for each layer of the generator.
-        degrees (list): A list containing the degree (number of child nodes) for each layer in the tree structure.
+        features (list[int]): A list containing the number of features for each layer of the generator.
+        degrees (list[int]): A list containing the degree (number of child nodes) for each layer in the tree structure.
         layer_idx (int): The current layer index.
     
     Methods:
-        forward(z): Processes the input `z` through root, loop transformations, and Conv1d, applying LeakyReLU activation.
+        forward(z: Tensor) -> Tensor: Processes the input `z` through root and loop transformations, 
+                                       applying 1D convolutions and LeakyReLU activation.
     """
-    def __init__(self, features, degrees, layer_idx):
+    
+    def __init__(self, features: list[int], degrees: list[int], layer_idx: int) -> None:
+        """
+        Initializes the TreeGCN layer with root transformations, loop transformations, and convolutional layers.
+
+        Args:
+            features (list[int]): Feature dimensions for each layer.
+            degrees (list[int]): Degrees (number of child nodes) for each layer.
+            layer_idx (int): Index of the current layer in the TreeGCN.
+        """
         super(TreeGCN, self).__init__()
         self.layer_idx = layer_idx
         
@@ -40,16 +50,21 @@ class TreeGCN(nn.Module):
         
         self.activation = nn.LeakyReLU(0.2)
 
-    def forward(self, z):
+    def forward(self, z: torch.Tensor) -> torch.Tensor:
         """ 
-        Applies the TreeGCN transformation to the input `z`, performing both root, loop transformations, 
+        Applies the TreeGCN transformation to the input `z`, performing both root and loop transformations, 
         and Conv1d layers for improved local feature extraction.
+        
+        Args:
+            z (torch.Tensor): Input tensor of shape [batch_size, vertex_num, features].
+        
+        Returns:
+            torch.Tensor: Output tensor after applying the transformations and activations.
         """
         # Root transformation
         root = self.fc_root(z)
         
-        # Reshape the output to fit Conv1d input: [batch_size, features, length]
-        # root: [batch_size, vertex_num, features] -> [batch_size, features, vertex_num]
+        # Reshape the output to fit Conv1d input
         root = root.permute(0, 2, 1)
         
         # Apply the first Conv1d layer
