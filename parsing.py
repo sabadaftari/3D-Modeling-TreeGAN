@@ -13,7 +13,7 @@ def add_parse_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     # Metadata arguments
     parser.add_argument('--num_epochs', 
                         type=int, 
-                        default=1,
+                        default=10,
                         help='Number of training epochs.')
     
     parser.add_argument('--batch_size', 
